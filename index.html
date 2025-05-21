@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom LLM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748; /* gray-800 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* gray-600 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* gray-500 */
+        }
+        .modal {
+            display: none;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .choice-button {
+            word-break: break-word;
+            white-space: normal;
+        }
+        #resource-log-console {
+            height: 150px;
+            overflow-y: auto;
+            background-color: #1a202c; /* gray-900 */
+            border: 1px solid #2d3748; /* gray-800 */
+            padding: 8px;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            color: #cbd5e0; /* gray-400 */
+        }
+        #resource-log-console p {
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+        .log-increase { color: #68d391; /* green-400 */ }
+        .log-decrease { color: #fc8181; /* red-400 */ }
+        .log-neutral { color: #a0aec0; /* gray-500 */ }
+
+        /* Crisis Log Styles */
+        .log-crisis-start { color: #f56565; /* red-500 */ font-weight: bold; }
+        .log-crisis-end { color: #48bb78; /* green-500 */ font-style: italic; }
+        .log-crisis-effect { color: #ecc94b; /* yellow-500 */ }
+        .log-crisis-ongoing { color: #ed8936; /* orange-500 */ font-style: italic;}
+
+
+        #initial-setup-screen {
+            display: flex;
+        }
+        #game-content {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4 selection:bg-purple-500 selection:text-white">
+
+    <div id="initial-setup-screen" class="w-full max-w-2xl bg-gray-800 shadow-2xl rounded-xl p-6 md:p-8 flex flex-col gap-6 items-center relative">
+        <button id="setup-settings-icon" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-20 p-2 rounded-full hover:bg-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.646.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1 -.26 1.431l-1.003.827c-.293.24-.438.613-.43.992a6.759 6.759 0 0 1 0 1.844c.008.379.137.75.43.992l1.004.827c.427.35.537.957.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.67 6.67 0 0 1-.22.128c-.333.183-.582.495-.646.869l-.213 1.28c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.646-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43.992a6.759 6.759 0 0 1 0-1.844c-.008-.379-.137-.75-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.646-.869l.213-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+        </button>
+
+        <h1 class="text-3xl font-bold text-purple-300 mb-4 pt-8">Found Your Kingdom</h1>
+
+        <div class="w-32 h-32 md:w-36 md:h-36 bg-gray-600 rounded-full overflow-hidden shadow-lg border-2 border-gray-500 mb-2">
+            <img id="king-avatar-preview" src="https://placehold.co/144x144/6b7280/ffffff?text=King" alt="King's Avatar" class="w-full h-full object-cover">
+        </div>
+        <button id="randomize-king-avatar-button" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md text-sm mb-4">Randomize Avatar</button>
+
+        <div class="w-full">
+            <label for="king-name-input" class="block text-sm font-medium text-gray-300 mb-1">Ruler's Name:</label>
+            <input type="text" id="king-name-input" value="King Arthur" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-purple-500 focus:border-purple-500 placeholder-gray-500">
+        </div>
+
+        <div class="w-full">
+            <label for="kingdom-name-input" class="block text-sm font-medium text-gray-300 mb-1">Kingdom's Name:</label>
+            <input type="text" id="kingdom-name-input" value="Eldoria" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-purple-500 focus:border-purple-500 placeholder-gray-500">
+        </div>
+
+        <button id="start-game-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-150 ease-in-out transform hover:scale-105 mt-4">
+            Begin New Reign
+        </button>
+        <button id="load-game-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-150 ease-in-out transform hover:scale-105 mt-2">
+            Load Saved Game
+        </button>
+    </div>
+
+    <div id="game-content" class="w-full max-w-7xl bg-gray-800 shadow-2xl rounded-xl p-6 md:p-8 flex flex-col gap-6 relative">
+
+        <header id="top-bar" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-center items-stretch">
+            <div class="bg-gray-700 p-3 rounded-lg shadow"><span class="block text-sm text-purple-300">Population</span><span id="population-value" class="text-xl font-bold">1000</span></div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow"><span class="block text-sm text-green-300">Wealth</span><span id="wealth-value" class="text-xl font-bold">500</span></div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow"><span class="block text-sm text-yellow-300">Food</span><span id="food-value" class="text-xl font-bold">750</span></div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow"><span class="block text-sm text-red-300">Military</span><span id="military-value" class="text-xl font-bold">100</span></div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow sm:col-span-1 md:col-span-1 lg:col-span-1"><span class="block text-sm text-blue-300">Stability</span><span id="stability-value" class="text-xl font-bold">75</span>%</div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow col-span-1 sm:col-span-1 md:col-span-1 lg:col-span-1"><span class="block text-sm text-gray-400">Date</span><span id="year-value" class="text-l font-bold">January, Year 1</span></div>
+            <button id="settings-icon" class="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg shadow transition-colors col-span-1 sm:col-span-1 md:col-span-1 lg:col-span-1 flex flex-col items-center justify-center p-2" title="Settings">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mb-1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.646.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.43.992a6.759 6.759 0 0 1 0 1.844c.008.379.137.75.43.992l1.004.827c.427.35.537.957.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.67 6.67 0 0 1-.22.128c-.333.183-.582.495-.646.869l-.213 1.28c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.646-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43.992a6.759 6.759 0 0 1 0-1.844c-.008-.379-.137-.75-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.646-.869l.213-1.28Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+                <span class="text-xs">Settings</span>
+            </button>
+        </header>
+
+        <main id="event-area" class="bg-gray-750 shadow-inner rounded-lg p-6 flex flex-col gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                <div id="npc-character-panel" class="md:col-span-1 flex flex-col items-center text-center bg-gray-700 p-4 rounded-lg shadow">
+                    <div id="character-portrait-container" class="w-28 h-28 md:w-32 md:h-32 bg-gray-600 rounded-full overflow-hidden shadow-lg border-2 border-gray-500 flex-shrink-0">
+                        <img id="character-portrait-img" src="https://placehold.co/128x128/6b7280/ffffff?text=NPC" alt="Character Portrait" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mt-2">
+                        <h2 id="character-name" class="text-xl md:text-2xl font-semibold text-purple-300">NPC Name</h2>
+                        <p id="character-faction" class="text-sm md:text-base text-gray-400">NPC Faction & Role</p>
+                    </div>
+                </div>
+
+                <div id="resource-log-panel" class="md:col-span-1 flex flex-col bg-gray-700 p-4 rounded-lg shadow">
+                     <h3 class="text-lg font-semibold text-gray-300 mb-2 text-center">Event Log</h3>
+                    <div id="resource-log-console" class="w-full flex-grow text-left">
+                        <p class="log-neutral">Awaiting your decisions...</p>
+                    </div>
+                </div>
+
+                <div id="king-info-panel" class="md:col-span-1 flex flex-col items-center text-center bg-gray-700 p-4 rounded-lg shadow">
+                    <div id="king-portrait-container" class="w-28 h-28 md:w-32 md:h-32 bg-gray-600 rounded-full overflow-hidden shadow-lg border-2 border-gray-500 flex-shrink-0">
+                        <img id="king-portrait-img" src="https://placehold.co/128x128/7c3aed/ffffff?text=King" alt="King's Portrait" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mt-2">
+                        <h2 id="king-name-display" class="text-xl md:text-2xl font-semibold text-yellow-300">King Arthur</h2>
+                        <p id="kingdom-name-display" class="text-sm md:text-base text-gray-400">Kingdom of Eldoria</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dialogue-container" class="bg-gray-700 p-4 rounded-lg shadow mt-4">
+                <p id="dialogue-text" class="text-gray-300 leading-relaxed text-base md:text-lg text-center min-h-[100px]">
+                    Loading event...
+                </p>
+            </div>
+
+            <div id="choices-container" class="w-full mt-auto flex flex-col sm:flex-row sm:justify-center gap-3 pt-4">
+                </div>
+        </main>
+
+        <section id="factions-bar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div class="bg-gray-700 p-3 rounded-lg shadow text-center"><span class="block text-xs text-yellow-400">Nobility</span><span id="nobility-standing" class="text-lg font-bold">50</span>%</div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow text-center"><span class="block text-xs text-blue-400">Clergy</span><span id="clergy-standing" class="text-lg font-bold">50</span>%</div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow text-center"><span class="block text-xs text-green-400">Merchants</span><span id="merchants-standing" class="text-lg font-bold">50</span>%</div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow text-center"><span class="block text-xs text-red-400">Peasantry</span><span id="peasantry-standing" class="text-lg font-bold">50</span>%</div>
+            <div class="bg-gray-700 p-3 rounded-lg shadow text-center col-span-2 sm:col-span-3 lg:col-span-1"><span class="block text-xs text-gray-400">Military Leaders</span><span id="military_leaders-standing" class="text-lg font-bold">50</span>%</div>
+        </section>
+
+    </div>
+
+    <div id="notification-area" class="fixed bottom-0 right-0 p-4 space-y-2 z-[99]"></div>
+
+
+    <div id="settings-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-80 items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-md flex flex-col gap-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-semibold text-purple-300">Settings</h2>
+                <button id="close-settings-button" class="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div>
+                <label for="api-key-input" class="block text-sm font-medium text-gray-300 mb-1">Gemini API Key:</label>
+                <input type="password" id="api-key-input" name="api-key-input" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-purple-500 focus:border-purple-500 placeholder-gray-500" placeholder="Enter your Gemini API Key">
+                <p class="text-xs text-gray-500 mt-1">Your API key is stored locally in your browser.</p>
+            </div>
+            <div>
+                <label for="dicebear-style-select" class="block text-sm font-medium text-gray-300 mb-1">Avatar Style (Dicebear):</label>
+                <select id="dicebear-style-select" name="dicebear-style-select" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-purple-500 focus:border-purple-500">
+                </select>
+            </div>
+            <div class="mt-2">
+                <button id="save-settings-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-150 ease-in-out transform hover:scale-105">
+                    Save Settings
+                </button>
+            </div>
+            <div id="new-game-button-container" class="mt-4 border-t border-gray-700 pt-4">
+                 <button id="modal-new-game-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-150 ease-in-out transform hover:scale-105">
+                    Start New Game
+                </button>
+                <p class="text-xs text-gray-500 mt-1 text-center">This will erase your current unsaved progress.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dicebearStyles = [
+            { id: "adventurer", name: "Adventurer" }, { id: "adventurer-neutral", name: "Adventurer (Neutral)" },
+            { id: "avataaars", name: "Avataaars" }, { id: "big-ears", name: "Big Ears" },
+            { id: "big-ears-neutral", name: "Big Ears (Neutral)" }, { id: "big-smile", name: "Big Smile" },
+            { id: "bottts", name: "Bottts (Robots)" }, { id: "croodles", name: "Croodles (Doodles)" },
+            { id: "fun-emoji", name: "Fun Emoji" }, { id: "icons", name: "Icons (Simple)" },
+            { id: "identicon", name: "Identicon (Geometric)" }, { id: "initials", name: "Initials" },
+            { id: "lorelei", name: "Lorelei (Cartoon)" }, { id: "lorelei-neutral", name: "Lorelei (Neutral)" },
+            { id: "micah", name: "Micah (Pixelated)" }, { id: "miniavs", name: "Miniavs (Minimalist)" },
+            { id: "open-peeps", name: "Open Peeps (Illustrations)" }, { id: "personas", name: "Personas (Sketch)" },
+            { id: "pixel-art", name: "Pixel Art" }, { id: "pixel-art-neutral", name: "Pixel Art (Neutral)" },
+            { id: "shapes", name: "Shapes (Abstract)" }, { id: "thumbs", name: "Thumbs (Thumbs Up/Down)" }
+        ];
+
+        const selectElement = document.getElementById('dicebear-style-select');
+        if (selectElement) {
+            selectElement.innerHTML = '';
+            dicebearStyles.forEach(style => {
+                const option = document.createElement('option');
+                option.value = style.id;
+                option.textContent = style.name;
+                selectElement.appendChild(option);
+            });
+            const savedStyle = localStorage.getItem('dicebearStyle') || 'adventurer';
+            selectElement.value = savedStyle;
+        }
+    </script>
+    <script src="js/crisis_definitions.js"></script>
+    <script src="js/random_tables.js"></script>
+    <script src="js/dicebear_handler.js"></script>
+    <script src="js/llm_handler.js"></script>
+    <script src="js/ui_manager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
