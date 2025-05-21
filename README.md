@@ -2,6 +2,8 @@
 
 Kingdom LLM is a single-player, browser-based kingdom management game where you take on the role of a monarch. Your decisions, guided by interactions with characters role-played by a Large Language Model (LLM), will shape the fate of your realm. Balance resources, manage faction approval, and navigate treacherous crises to ensure your reign is long and prosperous.
 
+Play Online: https://francopirinoli.github.io/Kingdom-LLM/
+
 ## Table of Contents
 
 1.  [Game Overview](#game-overview)
@@ -124,10 +126,6 @@ A message will explain the cause of your downfall.
 ## Setup & Running the Game
 
 1.  **Clone the Repository (or download the files):**
-    ```bash
-    git clone [https://github.com/your-username/kingdom-llm.git](https://github.com/your-username/kingdom-llm.git)
-    cd kingdom-llm
-    ```
 2.  **Obtain a Gemini API Key:**
     * Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
     * Create an API key.
